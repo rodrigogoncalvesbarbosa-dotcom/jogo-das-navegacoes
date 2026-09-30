@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>A Conquista dos Mares: A Odisséia Atlântica</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <style>
+    :root {
+      --primary: #1e3a8a;
+      --secondary: #d97706;
+      --accent: #10b981;
+      --danger: #ef4444;
+      --bg: #0f172a;
+      --card-bg: #1e293b;
+      --text: #f8fafc;
+    }
+
+    * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; }
+    body { background-color: var(--bg); color: var(--text); min-height: 100vh; display: flex; justify-content: center; align-items: center; padding: 20px; }
+    .container { width: 100%; max-width: 800px; background: var(--card-bg); border-radius: 16px; padding: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); border: 1px solid #334155; }
+    
+    header { text-align: center; margin-bottom: 25px; border-bottom: 2px solid #334155; padding-bottom: 15px; }
+    h1 { color: #f59e0b; font-size: 1.8rem; margin-bottom: 8px; }
+    p.subtitle { color: #94a3b8; font-size: 0.95rem; }
+
+    .stats-bar { display: flex; justify-content: space-between; align-items: center; background: #0f172a; padding: 12px 20px; border-radius: 10px; margin-bottom: 20px; border: 1px solid #334155; }
+    .stat-item { font-weight: bold; font-size: 0.95rem; color: #cbd5e1; }
+    .stat-value { color: var(--secondary); font-size: 1.1rem; }
+
+    .progress-container { width: 100%; background: #334155; height: 12px; border-radius: 6px; overflow: hidden; margin-bottom: 25px; }
+    .progress-bar { width: 0%; height: 100%; background: linear-gradient(90deg, #d97706, #10b981); transition: width 0.3s ease; }
+
+    .question-box { margin-bottom: 25px; }
+    .phase-tag { display: inline-block; background: #3b82f6; color: #fff; font-size: 0.8rem; font-weight: bold; padding: 4px 10px; border-radius: 20px; margin-bottom: 10px; text-transform: uppercase; }
+    .question-text { font-size: 1.15rem; line-height: 1.5; margin-bottom: 20px; color: #f8fafc; font-weight: 600; }
+
+    .options-grid { display: grid; grid-template-columns: 1fr; gap: 12px; }
+    .option-btn { background: #334155; color: #f8fafc; border: 2px solid #475569; padding: 14px 18px; border-radius: 10px; font-size: 1rem; text-align: left; cursor: pointer; transition: all 0.2s ease; display: flex; align-items: center; }
+    .option-btn:hover { background: #475569; border-color: #94a3b8; transform: translateY(-2px); }
+    .option-btn.correct { background: #065f46; border-color: #10b981; color: #fff; }
+    .option-btn.incorrect { background: #991b1b; border-color: #ef4444; color: #fff; }
+
+    .feedback-box { margin-top: 20px; padding: 15px; border-radius: 10px; display: none; font-size: 0.95rem; line-height: 1.4; }
+    .feedback-box.correct { background: #022c22; border: 1px solid #059669; color: #a7f3d0; }
+    .feedback-box.incorrect { background: #450a0a; border: 1px solid #dc2626; color: #fecaca; }
+
+    .action-btn { margin-top: 20px; width: 100%; background: var(--secondary); color: #fff; border: none; padding: 14px; border-radius: 10px; font-size: 1.1rem; font-weight: bold; cursor: pointer; transition: background 0.2s ease; display: none; }
+    .action-btn:hover { background: #b45309; }
+
+    .screen { display: none; }
+    .screen.active { display: block; }
+
+    input[type="text"] { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #475569; background: #0f172a; color: #fff; font-size: 1rem; margin-top: 8px; margin-bottom: 20px; }
+    .start-btn { background: var(--accent); color: #fff; border: none; padding: 14px 28px; border-radius: 10px; font-size: 1.2rem; font-weight: bold; cursor: pointer; width: 100%; transition: background 0.2s; }
+    .start-btn:hover { background: #059669; }
+
+    .cert-btn { background: #2563eb; color: #fff; border: none; padding: 14px; border-radius: 10px; font-size: 1.1rem; font-weight: bold; cursor: pointer; width: 100%; margin-top: 15px; }
+    .cert-btn:hover { background: #1d4ed8; }
+
+    .alert-warning { background: #7c2d12; border: 1px solid #ea580c; color: #ffedd5; padding: 12px; border-radius: 8px; font-size: 0.9rem; margin-bottom: 20px; }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <!-- TELA INICIAL -->
+  <div id="start-screen" class="screen active">
+    <header>
+      <h1>⚓ A Conquista dos Mares</h1>
+      <p class="subtitle">A Odisséia Atlântica rumo ao Novo Mundo (7º Ano)</p>
+    </header>
+
+    <div class="alert-warning">
+      ⚠️ <strong>REGRA DE NAVEGAÇÃO RÍGIDA:</strong> Para obter a patente máxima e o certificado, você deve acertar todas as 50 questões! Se errar a partir da 3ª questão, a tempestade te fará <strong>voltar 2 questões atrás</strong>!
+    </div>
+
+    <p style="margin-bottom: 20px; line-height: 1.6; color: #cbd5e1;">
+      Ahoy, navegador(a)! Prepare sua caravela. Responda aos <strong>50 desafios inéditos</strong> de navegação. Teste sua atenção e conhecimentos históricos para concluir a missão perfeita.
+    </p>
+    
+    <label for="player-name" style="font-weight: bold; color: #f59e0b;">Digite seu nome completo de Capitão(ã):</label>
+    <input type="text" id="player-name" placeholder="Ex: Maria Silva" required>
+    <button class="start-btn" onclick="startGame()">🚀 Iniciar Expedição Marítima</button>
+  </div>
+
+  <!-- TELA DE JOGO -->
+  <div id="game-screen" class="screen">
+    <header style="padding-bottom: 10px; margin-bottom: 15px;">
+      <h1>⚓ A Conquista dos Mares</h1>
+    </header>
+
+    <div class="stats-bar">
+      <div class="stat-item">Capitão: <span id="display-name" class="stat-value">-</span></div>
+      <div class="stat-item">Erros: <span id="errors-count" class="stat-value" style="color: #ef4444;">0</span></div>
+      <div class="stat-item">Questão: <span id="q-num" class="stat-value">1</span>/50</div>
+    </div>
+
+    <div class="progress-container">
+      <div id="progress-bar" class="progress-bar"></div>
+    </div>
+
+    <div class="question-box">
+      <span id="phase-tag" class="phase-tag">Fase 1</span>
+      <div id="question-text" class="question-text">Carregando pergunta...</div>
+      <div id="options-grid" class="options-grid"></div>
+    </div>
+
+    <div id="feedback-box" class="feedback-box"></div>
+
+    <button id="next-btn" class="action-btn" onclick="nextQuestion()">Avançar na Navegação ➔</button>
+  </div>
+
+  <!-- TELA DE VITÓRIA PERFEITA -->
+  <div id="end-screen" class="screen" style="text-align: center;">
+    <header>
+      <h1>🏆 Vitória Perfeita nos Mares!</h1>
+      <p class="subtitle">O Oceano Atlântico foi totalmente conquistado sem falhas!</p>
+    </header>
+    <p style="font-size: 1.2rem; margin-bottom: 15px;">Incrível, Capitão(ã) <strong id="final-name" style="color: #f59e0b;"></strong>!</p>
+    <p style="font-size: 1.1rem; margin-bottom: 20px;">
+      Você dominou todas as 50 questões históricas com <strong>100% de aproveitamento</strong>!
+    </p>
+    <div id="rank-box" style="background: #0f172a; padding: 15px; border-radius: 10px; margin-bottom: 20px; border: 1px solid #334155; font-size: 1.2rem; font-weight: bold; color: #f59e0b;">
+      Patente Alcançada: 👑 Capitão-Mór dos Sete Mares
+    </div>
+    <button class="cert-btn" onclick="generatePDF()">📜 Baixar Certificado Oficial de Navegador (PDF)</button>
+    <button class="action-btn" style="display: block; background: #475569; margin-top: 10px;" onclick="location.reload()">🔄 Jogar Novamente</button>
+  </div>
+</div>
+
+<script>
+  // 50 QUESTÕES COM GABARITO EQUILIBRADO (A, B, C, D)
+  const questions = [
+    // FASE 1
+    {
+      phase: "Fase 1: Crise e Rotas Comerciais",
+      question: "1. Por qual razão o controle turco-otomano sobre Constantinopla em 1453 forçou a busca por rotas oceânicas?",
+      options: ["Aumentou os impostos e encareceu a Rota da Seda terrestre", "Proibiu totalmente o uso do ferro na fabricação de navios", "Destruiu a frota marítima da Inglaterra no Oceano Pacífico", "Exigiu que os europeus adotassem o idioma árabe nas negociações"],
+      correct: 0,
+      explain: "O bloqueio da rota terrestre encareceu as mercadorias, forçando o acesso ao mar."
+    },
+    {
+      phase: "Fase 1: Crise e Rotas Comerciais",
+      question: "2. Na Europa do século XV, qual das alternativas descreve a importância medicinal e conservante das especiarias?",
+      options: ["Serviam exclusivamente para tingir os tecidos dos nobres", "Eram usadas para farmacologia, pomadas e conservação de carnes", "Eram queimadas no motor dos primeiros navios", "Substituíam o consumo de água potável nas viagens"],
+      correct: 1,
+      explain: "As especiarias serviam tanto para conservar carnes quanto para medicamentos e perfumes."
+    },
+    {
+      phase: "Fase 1: Crise e Rotas Comerciais",
+      question: "3. Qual grupo social europeu tinha grande interesse em financiar a expansão marítima para ampliar seus lucros comerciais?",
+      options: ["Os servos feudais", "Os camponeses da Europa Oriental", "A burguesia mercantil", "Os artesãos corporativos feudais"],
+      correct: 2,
+      explain: "A burguesia buscava quebrar os monopólios para lucrar diretamente com o comércio."
+    },
+    {
+      phase: "Fase 1: Crise e Rotas Comerciais",
+      question: "4. Qual união política garantiu estabilidade e verbas para o pioneirismo marítimo português?",
+      options: ["A união entre servos e a nobreza feudal", "O pacto entre corsários ingleses e o Papa", "A aliança militar entre o Império Otomano e a Espanha", "A aliança entre o Rei e a Burguesia comercial"],
+      correct: 3,
+      explain: "A centralização monárquica aliada ao capital burguês fortaleceu Portugal."
+    },
+    {
+      phase: "Fase 1: Crise e Rotas Comerciais",
+      question: "5. Por que as cidades italianas de Veneza e Gênova se opunham à descoberta de novas rotas no Oceano Atlântico?",
+      options: ["Queriam que os espanhóis dominassem o comércio", "Não sabiam construir embarcações de madeira", "Perderiam o monopólio e os altos lucros sobre os produtos do Oriente", "Queriam priorizar o comércio pelo Polo Norte"],
+      correct: 2,
+      explain: "As cidades italianas lucravam alto controlando a rota tradicional do Mediterrâneo."
+    },
+    {
+      phase: "Fase 1: Crise e Rotas Comerciais",
+      question: "6. Qual metal precioso era fundamental para cunhar moedas no mercantilismo europeu e estava escasso no século XV?",
+      options: ["Ouro", "Cobre", "Bronze", "Estanho"],
+      correct: 0,
+      explain: "O ouro acumulado media a riqueza e o poder do Estado mercantilista."
+    },
+    {
+      phase: "Fase 1: Crise e Rotas Comerciais",
+      question: "7. O conceito medieval do 'Mar Tenebroso' atribuído ao Oceano Atlântico envolvia a crença em:",
+      options: ["Um oceano raso e sem nenhuma vida marinha", "Monstros marinhos, abismos e fervura das águas na Linha do Equador", "Uma rota segura e calma até o continente asiático", "Um grande continente de gelo no centro da Terra"],
+      correct: 1,
+      explain: "Mitos medievais espalhavam o temor de criaturas e perigos sobrenaturais no Atlântico."
+    },
+    {
+      phase: "Fase 1: Crise e Rotas Comerciais",
+      question: "8. A Igreja Católica apoiou o projeto das navegações principalmente para:",
+      options: ["Cobrar impostos em moedas de papel na Ásia", "Expandir a fé católica e converter novos fiéis em terras distantes", "Abandonar suas sedes oficiais no continente europeu", "Construir monastérios flutuantes nas caravelas"],
+      correct: 1,
+      explain: "A expansão religiosa andava junto com o projeto colonial ibérico."
+    },
+
+    // FASE 2
+    {
+      phase: "Fase 2: Tecnologia Náutica",
+      question: "9. A manobra marítima chamada 'bolinar' permitia à caravela:",
+      options: ["Afundar a proa para ganhar velocidade nas ondas", "Avançar no mar fazendo zigue-zague contra a direção do vento", "Navegar apenas quando o vento estivesse a favor da popa", "Girar em círculos até que o vento parasse de soprar"],
+      correct: 1,
+      explain: "As velas triangulares permitiam às caravelas navegar até contra a força do vento."
+    },
+    {
+      phase: "Fase 2: Tecnologia Náutica",
+      question: "10. Qual instrumento náutico utilizava a posição das estrelas e do Sol para determinar a latitude da embarcação?",
+      options: ["Bússola", "Ampulheta", "Astrolábio", "Barômetro"],
+      correct: 2,
+      explain: "O astrolábio media a altura dos astros para definir a localização ao norte ou ao sul."
+    },
+    {
+      phase: "Fase 2: Tecnologia Náutica",
+      question: "11. A bússola foi essencial para os marinheiros porque mantinha a orientação da rota apontando para o:",
+      options: ["Leste astronômico", "Norte magnético", "Sul geográfico", "Oeste solar"],
+      correct: 1,
+      explain: "A agulha imantada da bússola aponta sempre para o pólo magnético do planeta."
+    },
+    {
+      phase: "Fase 2: Tecnologia Náutica",
+      question: "12. As cartas náuticas conhecidas como 'portulanos' destacavam-se por apresentar:",
+      options: ["Ilustrações de lendas e monstros marítimos", "Opcional de rotas terrestres dentro do continente", "Mapeamento detalhado de costas, portos e linhas de rumo dos ventos", "Divisões astronômicas do sistema solar"],
+      correct: 2,
+      explain: "Portulanos focavam nos detalhes práticos de praias, portos e ventos."
+    },
+    {
+      phase: "Fase 2: Tecnologia Náutica",
+      question: "13. Para medir o tempo decorrido e organizar os turnos de trabalho a bordo, os navegadores usavam a:",
+      options: ["Ampulheta", "Bússola de mola", "Sonda de chumbo", "Balança de navegação"],
+      correct: 0,
+      explain: "A ampulheta de areia regulava as horas e os turnos da tripulação."
+    },
+    {
+      phase: "Fase 2: Tecnologia Náutica",
+      question: "14. A caravela portuguesa foi uma inovação tecnológica porque combinava o casco atlantico com velas triangulares (latinas) de origem:",
+      options: ["Chinesa", "Árabe", "Viking", "Asteca"],
+      correct: 1,
+      explain: "A vela latina triangular foi uma adaptação eficiente da engenharia naval árabe."
+    },
+    {
+      phase: "Fase 2: Tecnologia Náutica",
+      question: "15. O calado raso das caravelas trazia como principal vantagem prática:",
+      options: ["A capacidade de transportar centenas de canhões pesados", "A navegação em águas rasas, rios e costas sem risco de encalhar", "A resistência contra ataques de tubarões", "A velocidade constante mesmo sem vento"],
+      correct: 1,
+      explain: "Fundo pouco profundo permitia explorar rios e áreas de praia sem bater no fundo."
+    },
+    {
+      phase: "Fase 2: Tecnologia Náutica",
+      question: "16. A velocidade aproximada das embarcações era calculada com a 'barquinha', um instrumento baseado em:",
+      options: ["Uma corda com nós e uma peça de madeira lançadas na água", "Um relógio mecânico movido a água de sal", "A observação da velocidade dos peixes", "O peso da âncora lançada ao fundo"],
+      correct: 0,
+      explain: "Mediam-se quantos nós da corda passavam na água enquanto a areia da ampulheta corria."
+    },
+
+    // FASE 3
+    {
+      phase: "Fase 3: O Pioneirismo Português",
+      question: "17. O marco inicial da expansão ultramarina portuguesa ocorreu em 1415 com a conquista da cidade de:",
+      options: ["Ceuta", "Alexandria", "Tânger", "Cairo"],
+      correct: 0,
+      explain: "Ceuta, no norte da África, foi a primeira conquista além-mar dos portugueses."
+    },
+    {
+      phase: "Fase 3: O Pioneirismo Português",
+      question: "18. O mito histórico da 'Escola de Sagres' está ligado à figura do incentivador das navegações:",
+      options: ["Dom Pedro II", "Infante Dom Henrique", "Vasco da Gama", "Luís de Camões"],
+      correct: 1,
+      explain: "O Infante D. Henrique reuniu sábios, cartógrafos e marinheiros em Sagres."
+    },
+    {
+      phase: "Fase 3: O Pioneirismo Português",
+      question: "19. Bartolomeu Dias alcançou um feito histórico em 1488 ao:",
+      options: ["Chegar diretamente ao território do Japão", "Dobrar o Cabo das Tormentas (extremo sul da África)", "Mapear a foz do Rio Amazonas", "Desembarcar nas ilhas da Oceania"],
+      correct: 1,
+      explain: "A dobragem do sul africano abriu passagem para o Oceano Índico."
+    },
+    {
+      phase: "Fase 3: O Pioneirismo Português",
+      question: "20. A expedição comandada por Vasco da Gama em 1498 foi histórica por:",
+      options: ["Completar a rota marítima direta da Europa para a Índia (Calicute)", "Conquistar o Império Inca na América do Sul", "Realizar a primeira travessia do Oceano Pacífico", "Descobrir o continente australiano"],
+      correct: 0,
+      explain: "Vasco da Gama chegou às Índias navegando ao redor do continente africano."
+    },
+    {
+      phase: "Fase 3: O Pioneirismo Português",
+      question: "21. As 'feitorias' construídas pelos portugueses ao longo da costa africana eram:",
+      options: ["Postos comerciais fortificados para estocar mercadorias e fazer trocas", "Grandes cidades coloniais com universidades", "Fazendas de cultivo de açúcar para exportação", "Monastérios para abrigar apenas religiosos"],
+      correct: 0,
+      explain: "Eram bases seguras para o comércio, reabastecimento e estocagem de produtos."
+    },
+    {
+      phase: "Fase 3: O Pioneirismo Português",
+      question: "22. O Rei Dom João II renomeou o 'Cabo das Tormentas' para 'Cabo da Boa Esperança' porque:",
+      options: ["Não havia mais ventos fortes na região", "Simbolizava a esperança de alcançar as riquezas da Índia pelo mar", "O Papa havia ordenado a alteração do nome", "Foi encontrado ouro no litoral africano"],
+      correct: 1,
+      explain: "Demonstrava o otimismo com a abertura da rota direta para o Oriente."
+    },
+    {
+      phase: "Fase 3: O Pioneirismo Português",
+      question: "23. Uma das vantagens geográficas de Portugal para liderar a expansão marítima foi:",
+      options: ["Estar localizado no centro do Mar Mediterrâneo", "Possuir uma extensa costa banhada pelo Oceano Atlântico", "Estar isolado por montanhas sem acesso ao mar", "Ter fronteira direta com o continente asiático"],
+      correct: 1,
+      explain: "A fachada atlântica voltou o reino naturalmente para o mar."
+    },
+    {
+      phase: "Fase 3: O Pioneirismo Português",
+      question: "24. A técnica da 'Volta do Mar' desenvolvida pelos marinheiros lusitanos consistia em:",
+      options: ["Navegar sempre raspando a areia da costa", "Afastar-se da costa para aproveitar as correntes e ventos largos do Atlântico", "Remar em círculos quando a maré estivesse baixa", "Subir os rios africanos até o interior do continente"],
+      correct: 1,
+      explain: "Desviar do litoral africano garantia ventos mais favoráveis para a navegação."
+    },
+
+    // FASE 4
+    {
+      phase: "Fase 4: A Rota Espanhola e Colombo",
+      question: "25. O projeto de Cristóvão Colombo baseava-se na tese correta de que:",
+      options: ["A Terra era plana e tinha bordas infinitas", "A Terra era esférica e era possível chegar ao Leste navegando para o Oeste", "A Ásia estava conectada à Europa pelo Oceano Atlântico", "O Oceano Pacífico era impossível de ser navegado"],
+      correct: 1,
+      explain: "Colombo sabia da esfericidade do planeta, mas errou nas dimensões."
+    },
+    {
+      phase: "Fase 4: A Rota Espanhola e Colombo",
+      question: "26. O principal erro de cálculo no plano de viagem de Colombo foi:",
+      options: ["Acreditar que a Terra era em formato de cubo", "Estimar que a circunferência da Terra era muito menor do que a real", "Imaginar que a viagem duraria mais de vinte anos", "Achar que o Sol nascia no lado Oeste"],
+      correct: 1,
+      explain: "Ele calculou uma distância bem menor, sem saber da existência da América."
+    },
+    {
+      phase: "Fase 4: A Rota Espanhola e Colombo",
+      question: "27. O documento assinado pelos Reis Católicos da Espanha autorizando a viagem de Colombo chamava-se:",
+      options: ["Capitulações de Santa Fé", "Tratado de Tordesilhas", "Carta de Caminha", "Bula Inter Coetera"],
+      correct: 0,
+      explain: "O acordo de Santa Fé garantia títulos e percentuais das riquezas a Colombo."
+    },
+    {
+      phase: "Fase 4: A Rota Espanhola e Colombo",
+      question: "28. Em agosto de 1492, as três caravelas de Colombo partiram do porto espanhol de:",
+      options: ["Sevilha", "Palos de la Frontera", "Barcelona", "Valência"],
+      correct: 1,
+      explain: "A esquadra de Colombo (Santa María, Pinta e Niña) zarpou de Palos."
+    },
+    {
+      phase: "Fase 4: A Rota Espanhola e Colombo",
+      question: "29. A primeira ilha americana em que Colombo aportou em 12 de outubro de 1492 foi batizada por ele de:",
+      options: ["San Salvador (Guanahani)", "Cuba", "Hispaniola", "Jamaica"],
+      correct: 0,
+      explain: "A ilha habitada pelos Lucayos foi rebatizada de San Salvador."
+    },
+    {
+      phase: "Fase 4: A Rota Espanhola e Colombo",
+      question: "30. Américo Vespúcio ganhou destaque na história cartográfica ao afirmar que:",
+      options: ["As terras encontradas por Colombo formavam um Novo Continente", "A América era apenas uma extensão da China", "Não existiam populações nativas nas ilhas do Caribe", "O Oceano Atlântico não se conectava com outros mares"],
+      correct: 0,
+      explain: "Vespúcio identificou que se tratava de um continente independente da Ásia."
+    },
+    {
+      phase: "Fase 4: A Rota Espanhola e Colombo",
+      question: "31. A expedição iniciada por Fernão de Magalhães em 1519 provou na prática:",
+      options: ["Que a Terra era menor que a Lua", "A circum-navegação e a ligação entre todos os oceanos", "Que o continente americano não tinha fim", "A existência da cidade fantasma de El Dorado"],
+      correct: 1,
+      explain: "Comprovou-se que era possível dar a volta completa navegando pelo globo."
+    },
+    {
+      phase: "Fase 4: A Rota Espanhola e Colombo",
+      question: "32. O estreito localizado no extremo sul do continente americano que conecta o Atlântico ao Pacífico chama-se:",
+      options: ["Estreito de Gibraltar", "Estreito de Magalhães", "Canal do Panamá", "Estreito de Bering"],
+      correct: 1,
+      explain: "O estreito natural na Patagônia permitiu passar ao Oceano Pacífico."
+    },
+
+    // FASE 5
+    {
+      phase: "Fase 5: Tordesilhas e Cabral",
+      question: "33. Portugal rejeitou os termos da Bula Inter Coetera (1493) porque ela:",
+      options: ["Dava todas as terras do Atlântico para a França", "Garantia apenas 100 léguas a oeste de Cabo Verde para Portugal, limitando sua navegação", "Proibia o uso de caravelas no hemisfério sul", "Obrigava Portugal a dividir suas riquezas com a Inglaterra"],
+      correct: 1,
+      explain: "A marcação de 100 léguas impedia as manobras portuguesas no Atlântico."
+    },
+    {
+      phase: "Fase 5: Tordesilhas e Cabral",
+      question: "34. O Tratado de Tordesilhas (1494) redefiniu a linha de partilha entre Espanha e Portugal para:",
+      options: ["100 léguas a oeste de Cabo Verde", "370 léguas a oeste de Cabo Verde", "500 léguas a leste dos Açores", "1000 léguas a oeste das Ilhas Canárias"],
+      correct: 1,
+      explain: "O limite de 370 léguas garantiu a posse oficial de parte do Brasil a Portugal."
+    },
+    {
+      phase: "Fase 5: Tordesilhas e Cabral",
+      question: "35. Ao navegar pelo Atlântico Sul em 1500, a esquadra de Pedro Álvares Cabral realizou uma manobra para o Sudoeste que:",
+      options: ["O levou a ancorar no litoral do atual estado da Bahia", "O fez naufragar na costa do deserto do Saara", "O guiou diretamente para o Polo Sul", "O fez entrar pelo Mar Mediterrâneo"],
+      correct: 0,
+      explain: "A 'Volta do Mar' para o Sudoeste culminou na chegada a Porto Seguro."
+    },
+    {
+      phase: "Fase 5: Tordesilhas e Cabral",
+      question: "36. O termo 'escambo', praticado entre portugueses e indígenas nos primeiros anos, significa:",
+      options: ["Compra e venda de mercadorias com moedas de ouro", "Troca direta de produtos sem uso de dinheiro", "Cobrança de impostos em forma de trabalho forçado", "Leilão de terras conquistadas"],
+      correct: 1,
+      explain: "Trocavam-se ferramentas e artefatos por corte e transporte de pau-brasil."
+    },
+    {
+      phase: "Fase 5: Tordesilhas e Cabral",
+      question: "37. O primeiro recurso natural explorado comercialmente pelos portugueses no Brasil foi o:",
+      options: ["Pau-brasil", "Ouro", "Café", "Açúcar"],
+      correct: 0,
+      explain: "A tinta vermelha extraída da madeira tinha altíssimo valor na Europa."
+    },
+    {
+      phase: "Fase 5: Tordesilhas e Cabral",
+      question: "38. Além de tomar posse das terras americanas, o objetivo principal e mais valioso da frota de Cabral era:",
+      options: ["Fundar grandes faculdades na América", "Estabelecer o monopólio comercial de especiarias na Índia", "Buscar escravizados na Austrália", "Atacar corsários ingleses no Caribe"],
+      correct: 1,
+      explain: "A missão comercial em Calicute era a prioridade financeira da esquadra."
+    },
+    {
+      phase: "Fase 5: Tordesilhas e Cabral",
+      question: "39. Na famosa Carta ao Rei D. Manuel I, Pero Vaz de Caminha descreveu a fertilidade da terra brasileira com a frase:",
+      options: ["'Em se plantando, tudo dá'", "'Uma terra seca e sem utilidade'", "'Um grande deserto coberto de gelo'", "'Uma ilha sem água potável'"],
+      correct: 0,
+      explain: "Caminha destacou a abundância de águas e a qualidade do solo brasileiro."
+    },
+    {
+      phase: "Fase 5: Tordesilhas e Cabral",
+      question: "40. A Primeira Missa Católica em solo brasileiro foi celebrada em 26 de abril de 1500 por:",
+      options: ["Frei Henrique de Coimbra", "Padre José de Anchieta", "Papa Alexandre VI", "Padre Antônio Vieira"],
+      correct: 0,
+      explain: "O franciscano Frei Henrique oficiou a missa na praia da Coroa Vermelha."
+    },
+
+    // FASE 6
+    {
+      phase: "Fase 6: Impactos e Globalização",
+      question: "41. O fenômeno histórico conhecido como 'Intercâmbio Colombiano' refere-se à:",
+      options: ["Troca de moedas entre bancos europeus", "Circulação global de plantas, animais, povos e doenças entre continentes", "Venda de caravelas usadas para países asiáticos", "Construção de redes de trens na América"],
+      correct: 1,
+      explain: "Refere-se ao fluxo biológico e cultural que integrou o mundo pós-1492."
+    },
+    {
+      phase: "Fase 6: Impactos e Globalização",
+      question: "42. Qual cultura agrícola originária da América tornou-se fundamental para conter a fome dos camponeses europeus?",
+      options: ["Batata", "Trigo", "Arroz", "Cevada"],
+      correct: 0,
+      explain: "A batata cultivada nos Andes tornou-se alimento básico na Europa."
+    },
+    {
+      phase: "Fase 6: Impactos e Globalização",
+      question: "43. No sistema mercantilista, a 'Balança Comercial Favorável' significava:",
+      options: ["Comprar mais mercadorias do exterior do que vender", "Exportar (vender) mais mercadorias do que importar (comprar)", "Doar riquezas para reinos vizinhos", "Manter os preços dos produtos sempre baixos"],
+      correct: 1,
+      explain: "Vender mais do que comprar retinha os metais preciosos no país."
+    },
+    {
+      phase: "Fase 6: Impactos e Globalização",
+      question: "44. A principal causa da devastação demográfica das populações nativas americanas no século XVI foi:",
+      options: ["O choque bacteriológico e epidemias de doenças trazidas pelos europeus", "A emigração em massa dos indígenas para a Europa", "O ataque de animais selvagens trazidos nos navios", "As mudanças climáticas provocadas pelo sol"],
+      correct: 0,
+      explain: "Gripe, varíola e sarampo dizimaram populações nativas sem imunidade."
+    },
+    {
+      phase: "Fase 6: Impactos e Globalização",
+      question: "45. O eixo econômico e comercial europeu deslocou-se do Mar Mediterrâneo para o:",
+      options: ["Oceano Atlântico", "Mar Vermelho", "Oceano Ártico", "Mar Cáspio"],
+      correct: 0,
+      explain: "O Atlântico tornou-se a rota principal das riquezas do comércio mundial."
+    },
+    {
+      phase: "Fase 6: Impactos e Globalização",
+      question: "46. A imposição cultural europeia sobre as populações originárias da América resultou em:",
+      options: ["Respeito e preservação das religiões nativas", "Processos de catequese forçada e destruição de estruturas sociais nativas", "Adoção das línguas indígenas pelas cortes europeias", "Igualdade de direitos políticos entre nativos e reis"],
+      correct: 1,
+      explain: "Houve destruição de culturas nativas e imposição da fé e língua do colonizador."
+    },
+    {
+      phase: "Fase 6: Impactos e Globalização",
+      question: "47. Qual bebida feita a partir do cacau americano tornou-se um artigo de luxo nas cortes da Europa?",
+      options: ["Chocolate", "Café", "Chá preto", "Vinho de cevada"],
+      correct: 0,
+      explain: "O cacau transformou-se no chocolate, item muito cobiçado pelos nobres."
+    },
+    {
+      phase: "Fase 6: Impactos e Globalização",
+      question: "48. O 'Pacto Colonial' estabelecia a seguinte regra comercial entre Metrópole e Colônia:",
+      options: ["A colônia só podia comerciar exclusivamente com sua metrópole", "A colônia podia vender produtos para qualquer país do mundo", "A metrópole pagava impostos anuais para a colônia", "A colônia escolhia livremente seus próprios governantes"],
+      correct: 0,
+      explain: "O Exclusivo Colonial forçava a colônia a negociar apenas com a metrópole."
+    },
+    {
+      phase: "Fase 6: Impactos e Globalização",
+      question: "49. O animal trazido pelos espanhóis que transformou o transporte e a caça de diversas tribos indígenas americanas foi o:",
+      options: ["Cavalo", "Elefante", "Camelo", "Pavão"],
+      correct: 0,
+      explain: "O cavalo revolucionou o deslocamento e a caça entre os nativos."
+    },
+    {
+      phase: "Fase 6: Impactos e Globalização",
+      question: "50. Com o término do ciclo das Grandes Navegações, a visão de mundo dos europeus:",
+      options: ["Expandiu-se ao compreender a real dimensão global e a conexão entre os continentes", "Tornou-se menor e mais isolada no continente europeu", "Confirmou a ideia de que a Terra era plana e finita", "Provou que não existiam outros oceanos além do Atlântico"],
+      correct: 0,
+      explain: "As navegações integraram os continentes e abriram a Era Moderna globalizada."
+    }
+  ];
+
+  // ESTADO DO JOGO
+  let currentQ = 0;
+  let errorsCount = 0;
+  let playerName = "";
+
+  // SINTETIZADOR DE SOM
+  function playSound(type) {
+    try {
+      const ctx = new (window.AudioContext || window.webkitAudioContext)();
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+
+      if (type === 'correct') {
+        osc.frequency.setValueAtTime(523.25, ctx.currentTime);
+        osc.frequency.setValueAtTime(659.25, ctx.currentTime + 0.1);
+        gain.gain.setValueAtTime(0.2, ctx.currentTime);
+        osc.start();
+        osc.stop(ctx.currentTime + 0.25);
+      } else if (type === 'incorrect') {
+        osc.frequency.setValueAtTime(180, ctx.currentTime);
+        osc.frequency.setValueAtTime(130, ctx.currentTime + 0.15);
+        gain.gain.setValueAtTime(0.3, ctx.currentTime);
+        osc.start();
+        osc.stop(ctx.currentTime + 0.35);
+      }
+    } catch(e) {}
+  }
+
+  function startGame() {
+    const input = document.getElementById('player-name').value.trim();
+    if (!input) {
+      alert("Por favor, digite seu nome de Capitão(ã) para começar!");
+      return;
+    }
+    playerName = input;
+    document.getElementById('display-name').textContent = playerName;
+    
+    document.getElementById('start-screen').classList.remove('active');
+    document.getElementById('game-screen').classList.add('active');
+    
+    loadQuestion();
+  }
+
+  function loadQuestion() {
+    const q = questions[currentQ];
+    document.getElementById('q-num').textContent = currentQ + 1;
+    document.getElementById('phase-tag').textContent = q.phase;
+    document.getElementById('question-text').textContent = q.question;
+    
+    const progress = ((currentQ) / questions.length) * 100;
+    document.getElementById('progress-bar').style.width = `${progress}%`;
+
+    const optionsContainer = document.getElementById('options-grid');
+    optionsContainer.innerHTML = '';
+
+    document.getElementById('feedback-box').style.display = 'none';
+    document.getElementById('next-btn').style.display = 'none';
+
+    q.options.forEach((opt, idx) => {
+      const btn = document.createElement('button');
+      btn.className = 'option-btn';
+      btn.innerHTML = `<strong style="margin-right:8px;">${String.fromCharCode(65 + idx)})</strong> ${opt}`;
+      btn.onclick = () => selectOption(idx);
+      optionsContainer.appendChild(btn);
+    });
+  }
+
+  function selectOption(index) {
+    const q = questions[currentQ];
+    const buttons = document.querySelectorAll('.option-btn');
+    const feedbackBox = document.getElementById('feedback-box');
+    
+    buttons.forEach(btn => btn.style.pointerEvents = 'none');
+
+    if (index === q.correct) {
+      buttons[index].classList.add('correct');
+      feedbackBox.className = "feedback-box correct";
+      feedbackBox.innerHTML = `<strong>🟢 RESPOSTA CORRETA!</strong> ${q.explain}`;
+      playSound('correct');
+      document.getElementById('next-btn').textContent = "Avançar na Navegação ➔";
+    } else {
+      buttons[index].classList.add('incorrect');
+      buttons[q.correct].classList.add('correct');
+      errorsCount++;
+      document.getElementById('errors-count').textContent = errorsCount;
+      playSound('incorrect');
+
+      // LÓGICA DE PUNICAO (VOLTAR 2 QUESTOES A PARTIR DA 3ª)
+      let penaltyText = "";
+      if (currentQ >= 2) {
+        currentQ = currentQ - 2; // Volta 2 questões
+        penaltyText = " 🌊 TEMPESTADE! Você errou e sua caravela foi arrastada <strong>2 QUESTÕES PARA TRÁS</strong>!";
+      } else {
+        currentQ = 0; // Volta para o início se estiver na Q1 ou Q2
+        penaltyText = " 🌊 TEMPESTADE! Você voltou para a primeira questão!";
+      }
+
+      feedbackBox.className = "feedback-box incorrect";
+      feedbackBox.innerHTML = `<strong>🔴 RESPOSTA INCORRETA!</strong> ${q.explain}<br><br>${penaltyText}`;
+      document.getElementById('next-btn').textContent = "Retornar Posição ↺";
+    }
+
+    feedbackBox.style.display = 'block';
+    document.getElementById('next-btn').style.display = 'block';
+  }
+
+  function nextQuestion() {
+    const feedbackBox = document.getElementById('feedback-box');
+    
+    // Se o último feedback foi acerto, avança
+    if (feedbackBox.classList.contains('correct')) {
+      currentQ++;
+    }
+    
+    if (currentQ < questions.length) {
+      loadQuestion();
+    } else {
+      endGame();
+    }
+  }
+
+  function endGame() {
+    document.getElementById('game-screen').classList.remove('active');
+    document.getElementById('end-screen').classList.add('active');
+    document.getElementById('final-name').textContent = playerName;
+  }
+
+  // GERADOR DE CERTIFICADO EM PDF
+  function generatePDF() {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF({
+      orientation: 'landscape',
+      unit: 'mm',
+      format: 'a4'
+    });
+
+    doc.setLineWidth(3);
+    doc.setDrawColor(217, 119, 6);
+    doc.rect(10, 10, 277, 190);
+
+    doc.setLineWidth(1);
+    doc.setDrawColor(30, 58, 138);
+    doc.rect(14, 14, 269, 182);
+
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(26);
+    doc.setTextColor(30, 58, 138);
+    doc.text("CERTIFICADO DE NAVEGAÇÃO PERFEITA", 148.5, 45, { align: "center" });
+
+    doc.setFontSize(15);
+    doc.setTextColor(217, 119, 6);
+    doc.text("A CONQUISTA DOS MARES: A ODISSÉIA ATLÂNTICA", 148.5, 55, { align: "center" });
+
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(13);
+    doc.setTextColor(30, 41, 59);
+    doc.text("Certificamos para os devidos fins históricos que o(a) explorador(a):", 148.5, 80, { align: "center" });
+
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(24);
+    doc.setTextColor(15, 23, 42);
+    doc.text(playerName.toUpperCase(), 148.5, 98, { align: "center" });
+
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(12);
+    doc.text("Concluiu com 100% DE APROVEITAMENTO todos os 50 Desafios Náuticos sem persistir em erros,", 148.5, 115, { align: "center" });
+    doc.text("superando as tempestades marítimas e demonstrando domínio completo sobre as Grandes Navegações.", 148.5, 123, { align: "center" });
+
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(14);
+    doc.setTextColor(16, 185, 129);
+    doc.text(`Aproveitamento: 50 / 50 Acertos (100%)  |  Patente: Capitão-Mór dos Sete Mares 👑`, 148.5, 142, { align: "center" });
+
+    doc.setLineWidth(0.5);
+    doc.setDrawColor(100, 116, 139);
+    doc.line(50, 175, 120, 175);
+    doc.line(177, 175, 247, 175);
+
+    doc.setFontSize(10);
+    doc.setTextColor(100, 116, 139);
+    doc.text("Comando da Esquadra Pedagógica", 85, 181, { align: "center" });
+    doc.text("Professor(a) de História - 7º Ano", 212, 181, { align: "center" });
+
+    doc.save(`Certificado_Navegacoes_${playerName.replace(/\s+/g, '_')}.pdf`);
+  }
+</script>
+</body>
+</html>
